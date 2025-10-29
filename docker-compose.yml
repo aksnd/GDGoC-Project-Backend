@@ -5,7 +5,7 @@ services:
     # 1. 사용할 Docker 이미지의 전체 경로를 지정합니다. 
     # (예: GCP Artifact Registry 경로)
     # <GCP_PROJECT_ID>와 <GCP_REGION>는 실제 값으로 대체해야 합니다.
-    image: ghcr.io/tejava317/GDGoC-Project-Backend/my-fastapi-app:latest
+    image: ghcr.io/aksnd/GDGoC-Project-Backend/my-fastapi-app:latest
     container_name: fastapi_web_app
     restart: always
     ports:

@@ -6,7 +6,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello, FastAPI!"}
+    return {"message": "Hello, FastAPI! with CI/CD"}
 
 @app.get("/config-test")
 def get_config():
