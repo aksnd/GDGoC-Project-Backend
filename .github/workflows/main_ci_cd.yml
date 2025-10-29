@@ -9,7 +9,7 @@ on:
 env:
   # ❗ GitHub Packages를 사용한다고 가정하고 경로 설정
   IMAGE_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository | lower }}/my-fastapi-app # 레지스트리 경로/이미지 이름
+  IMAGE_NAME: aksnd/gdgoc-project-backend/my-fastapi-app # 레지스트리 경로/이미지 이름
   IMAGE_TAG: latest # 항상 latest 태그를 사용 (최신 이미지를 나타냄)
   
 jobs:
