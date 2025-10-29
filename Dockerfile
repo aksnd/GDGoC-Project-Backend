@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 8002
 
 # 서버 실행 명령어 (컨테이너가 시작될 때 실행됩니다)
-CMD ["/usr/local/bin/python", "-m", "uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["uv", "run", "uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8002"]
