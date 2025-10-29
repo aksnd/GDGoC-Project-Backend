@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    # 1. 사용할 Docker 이미지의 전체 경로를 지정합니다. 
+    # (예: GCP Artifact Registry 경로)
+    # <GCP_PROJECT_ID>와 <GCP_REGION>는 실제 값으로 대체해야 합니다.
+    image: ghcr.io/tejava317/GDGoC-Project-Backend/my-fastapi-app:latest
+    container_name: fastapi_web_app
+    restart: always
+    ports:
+      # 외부 포트:컨테이너 포트
+      - "8002:8002" 
+    # 환경 변수가 필요하다면 여기서 설정합니다.
+    env_file: .env
