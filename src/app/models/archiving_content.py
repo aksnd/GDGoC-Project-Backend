@@ -6,6 +6,7 @@ from datetime import datetime
 
 from src.app.db.database import Base 
 
+# 실제로 user가 보는 각 페이지 별 comment나 질문 답변 내용, user 마음대로 삭제가 가능해야함.
 class ArchivingContent(Base):
     __tablename__ = "archiving_content"
 

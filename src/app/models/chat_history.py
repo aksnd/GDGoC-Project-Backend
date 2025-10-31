@@ -6,6 +6,7 @@ from datetime import datetime
 
 from src.app.db.database import Base 
 
+# 단순한 chat_history 역할로, USER가 PDF 기반으로 보는 용도의 DB는 아님 (User 삭제 불가)
 class ChatHistory(Base):
     __tablename__ = "chat_history"
 
