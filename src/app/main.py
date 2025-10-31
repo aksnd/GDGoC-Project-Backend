@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from .core.config import settings
-import sqlite3
+from sqlalchemy.orm import Session 
+from sqlalchemy import inspect
+from .db.database import get_db
+from .core.config import settings
 
 # FastAPI 인스턴스를 'app' 이라는 이름으로 정확하게 정의해야 합니다.
 app = FastAPI() 
@@ -22,21 +25,48 @@ def get_config():
     }
 
 @app.get("/db-test")
-def check_db_connection():
+def check_db_connection(db: Session = Depends(get_db)):
     """
     SQLite DB 파일의 연결 상태를 확인하고 정보를 반환합니다.
     """
     
-    conn = sqlite3.connect(settings.DATABASE_URL)
-    cur = conn.cursor()
+    result = db.execute("SELECT sqlite_version()").fetchone()
+    sqlite_version = result[0]
     
-    # SQLite 버전 확인
-    cur.execute("SELECT sqlite_version();")
-    sqlite_version = cur.fetchone()[0]
-    
-    conn.close()
     return {
         "database_url": settings.DATABASE_URL,
         "sqlite_version": sqlite_version,
     }
     
+
+@app.get("/db-tables")
+def get_actual_db_tables(db: Session = Depends(get_db)):
+    """
+    SQLite 파일에 실제로 존재하는 모든 테이블 목록을 조회합니다.
+    """
+    try:
+        # 1. SQLAlchemy Inspector 객체 생성
+        # Inspector는 DB 스키마 정보를 조사하는 데 사용됩니다.
+        inspector = inspect(db.bind) # db.bind는 DB 연결 엔진(engine)을 의미합니다.
+
+        # 2. DB에 존재하는 모든 테이블 이름 조회
+        table_names = inspector.get_table_names()
+
+        if not table_names:
+            return {
+                "status": "warning",
+                "message": "DB 파일에 테이블이 존재하지 않습니다. init_db.py를 실행했는지 확인하세요."
+            }
+            
+        return {
+            "status": "ok",
+            "message": f"{len(table_names)}개의 테이블이 DB 파일에 존재합니다.",
+            "db_tables": table_names
+        }
+
+    except Exception as e:
+        # DB 파일이 없거나 손상되었을 경우 에러 처리
+        raise HTTPException(
+            status_code=500, 
+            detail=f"DB 파일에 접근하는 중 오류가 발생했습니다: {e}"
+        )
