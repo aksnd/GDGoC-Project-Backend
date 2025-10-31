@@ -53,6 +53,9 @@ jobs:
 
             # 최신 이미지를 레지스트리에서 가져옴 (pull)
             # ❗ docker-compose.yml의 image 경로와 일치해야 합니다.
+
+            git pull origin main
+            
             docker compose pull web
             
             # 새 이미지로 컨테이너 교체 (다운타임 최소화)

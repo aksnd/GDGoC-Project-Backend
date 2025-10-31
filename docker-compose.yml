@@ -13,3 +13,5 @@ services:
       - "8002:8002" 
     # 환경 변수가 필요하다면 여기서 설정합니다.
     env_file: .env
+    volumes:
+      - ./src/app/db:/app/src/app/db

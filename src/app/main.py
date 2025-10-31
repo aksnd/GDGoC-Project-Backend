@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from .core.config import settings
+import sqlite3
 
 # FastAPI 인스턴스를 'app' 이라는 이름으로 정확하게 정의해야 합니다.
 app = FastAPI() 
@@ -19,5 +20,23 @@ def get_config():
         "is_secret_key_loaded": bool(settings.SECRET_KEY),
         "secret_key": settings.SECRET_KEY,
     }
-# 다른 라우트나 설정 코드가 뒤따를 수 있습니다.
-# ...
+
+@app.get("/db-test")
+def check_db_connection():
+    """
+    SQLite DB 파일의 연결 상태를 확인하고 정보를 반환합니다.
+    """
+    
+    conn = sqlite3.connect(settings.DATABASE_URL)
+    cur = conn.cursor()
+    
+    # SQLite 버전 확인
+    cur.execute("SELECT sqlite_version();")
+    sqlite_version = cur.fetchone()[0]
+    
+    conn.close()
+    return {
+        "database_url": settings.DATABASE_URL,
+        "sqlite_version": sqlite_version,
+    }
+    
