@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 from ..models.pdf_file import PdfFile
 from ..schemas.pdf import PdfContentCreateDB 
-from typing import Optional
+from typing import Optional, List
 
 # CREATE (새 PDF 메타데이터 저장)
 def create_pdf_file(db: Session, pdf_file_data: PdfContentCreateDB) -> PdfFile:
@@ -29,3 +29,9 @@ def get_pdf_file_by_id(db: Session, pdf_id: int) -> Optional[PdfFile]:
     """내부 ID를 기준으로 PdfFile 객체를 조회합니다."""
     
     return db.query(PdfFile).filter(PdfFile.id == pdf_id).first()
+
+# READ (전체 조회)
+def get_all_pdf_files(db: Session) -> List[PdfFile]:
+    """모든 PdfFile 객체를 조회합니다."""
+    
+    return db.query(PdfFile).all()

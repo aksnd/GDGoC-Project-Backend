@@ -15,6 +15,7 @@ class PdfFileResponse(BaseModel):
     """
     public_id: str = Field(..., description="클라이언트가 프로젝트를 식별하는 고유 ID")
     filename: str = Field(..., description="업로드된 파일의 원본 이름")
+    file_path: str = Field(..., description="파일이 저장되어 있는 서버 경로")
     upload_time: datetime = Field(..., description="파일이 업로드된 시각 (UTC)")
 
     model_config = {

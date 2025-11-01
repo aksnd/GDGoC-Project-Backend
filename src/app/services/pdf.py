@@ -83,7 +83,7 @@ async def create_pdf_project(
 # 3. 추가 서비스 함수: 특정 프로젝트 정보 로드
 # ------------------------------------------------------------------
 
-def get_project_data(db: Session, public_id: str) -> PdfFile:
+def get_pdf_data(db: Session, public_id: str) -> PdfFile:
     """
     [Service Layer] public_id를 사용하여 DB에서 프로젝트 메타데이터를 조회합니다.
     (나중에 Chat History와 Archiving Content 로직이 여기에 추가됩니다.)
