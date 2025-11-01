@@ -1,6 +1,5 @@
-# src/app/schemas/archive.py (일부)
-
 from pydantic import BaseModel, Field
+from typing import Optional
 
 # 2. PUT /archive/{id} 입력 스키마 (수정 요청)
 class ArchivingContentUpdate(BaseModel):
@@ -14,3 +13,11 @@ class ArchivingContentUpdate(BaseModel):
     
     # 이 스키마는 content만 받으며, image_url 등 다른 필드는 포함하지 않습니다.
     # 따라서 API나 Service 계층에서는 image_path를 변경하지 않도록 로직을 구현합니다.
+    
+class ArchiveContentCreateDB(BaseModel):
+    # ⭐ 주의: FK인 pdf_id는 services에서 찾아서 넘겨주어야 합니다.
+    pdf_id: int
+    page_number: int
+    content: str
+    source_type: str
+    image_path: Optional[str] = None
