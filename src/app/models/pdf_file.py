@@ -26,5 +26,5 @@ class PdfFile(Base): # ⭐ 클래스 이름 변경: PdfFile
     upload_time = Column(DateTime, default=datetime.now(timezone.utc), nullable=False) 
     
     # 관계 정의 (다른 테이블에서 FK로 참조할 때 사용할 이름)
-    chat_histories = relationship("ChatHistory", back_populates="pdf_project") 
-    archiving_contents = relationship("ArchivingContent", back_populates="pdf_project")
+    chat_histories = relationship("ChatHistory", back_populates="pdf_file") 
+    archiving_contents = relationship("ArchivingContent", back_populates="pdf_file")
