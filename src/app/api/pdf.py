@@ -6,8 +6,6 @@ from ..db.database import get_db
 from ..services.pdf import create_pdf_project, get_project_data
 from ..schemas.pdf import PdfFileResponse 
 
-# 💡 TODO: schemas, services 모듈은 추후 완성됩니다.
-
 router = APIRouter(
     prefix="/pdfs",
     tags=["PDF Management"]

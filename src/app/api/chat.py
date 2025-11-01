@@ -8,7 +8,7 @@ from ..db.database import get_db
 
 router = APIRouter(
     prefix="/chat",
-    tags=["Gemini Chat & History"]
+    tags=["Chat & History - 개발 중으로 아직 작동 x"]
 )
 
 # 예시: POST /chat/query - Gemini 질의 및 기록 저장

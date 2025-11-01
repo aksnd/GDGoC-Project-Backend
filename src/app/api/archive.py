@@ -11,7 +11,7 @@ from ..schemas.archive import ArchivingContentUpdate
 
 router = APIRouter(
     prefix="/archive",
-    tags=["Archiving Content Management"]
+    tags=["페이지별 채팅내역 및 메모 - 아직 개발 중, 작동 X"]
 )
 
 # 예시: POST /archive - 새 아카이빙 내용 추가
