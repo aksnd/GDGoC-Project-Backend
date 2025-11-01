@@ -22,4 +22,4 @@ class ChatHistory(Base):
     
     timestamp = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
     
-    project_pdf = relationship("PdfFile", back_populates="chat_histories")
+    pdf_file = relationship("PdfFile", back_populates="chat_histories")

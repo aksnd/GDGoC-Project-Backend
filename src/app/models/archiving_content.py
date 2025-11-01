@@ -23,4 +23,4 @@ class ArchivingContent(Base):
     
     last_modified = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc), nullable=False) 
     
-    project_pdf = relationship("PdfFile", back_populates="archiving_contents")
+    pdf_file = relationship("PdfFile", back_populates="archiving_contents")
