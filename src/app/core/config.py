@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     APP_NAME: str = "FastAPI App"
     ENVIRONMENT: str = "local"
     # 이제 Pydantic은 load_dotenv()가 로드한 시스템 환경 변수에서 이 값들을 찾습니다.
-    DATABASE_URL: str
     SECRET_KEY: str
     PORT: int = 8002
 

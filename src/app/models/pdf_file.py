@@ -1,6 +1,6 @@
 # src/app/models/pdf_file.py
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 import uuid
@@ -12,19 +12,22 @@ def generate_public_uuid():
     """UUID4를 문자열로 변환하여 public_id를 생성합니다."""
     return str(uuid.uuid4())
 
-class PdfFile(Base): # ⭐ 클래스 이름 변경: PdfFile
-    __tablename__ = "pdf_files" # ⭐ 테이블 이름 변경: pdf_files
-
+class PdfFile(Base): 
+    __tablename__ = "pdf_files"
+    
     id = Column(Integer, primary_key=True, index=True)
     
     # Front에서 사용되는 고유 ID. UUID로 자동 생성하며 Unique 제약조건 부여.
     public_id = Column(String, unique=True, index=True, default=generate_public_uuid, nullable=False) 
+    user_id = Column(String, ForeignKey("users.user_id"), nullable=False, index=True)
     
     filename = Column(String, nullable=False)
-    file_path = Column(String, nullable=False) # GCP Storage 경로 등
+    file_path = Column(String, nullable=False) # GCP Storage 경로
+    profile_image_path = Column(String, nullable=True) # 썸네일 이미지 GCP Storage 경로
     
     upload_time = Column(DateTime, default=datetime.now(timezone.utc), nullable=False) 
     
     # 관계 정의 (다른 테이블에서 FK로 참조할 때 사용할 이름)
+    owner = relationship("User", back_populates="pdf_files")
     chat_histories = relationship("ChatHistory", back_populates="pdf_file") 
     archiving_contents = relationship("ArchivingContent", back_populates="pdf_file")
