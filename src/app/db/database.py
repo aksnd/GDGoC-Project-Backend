@@ -7,8 +7,18 @@ from src.app.core.config import settings
 
 # DB 엔진 생성
 # check_same_thread=False는 SQLite의 동시성 문제 회피를 위해 FastAPI에서 필요합니다.
+DB_USER = "postgres"
+DB_PASSWORD = "Gdgocproject1!"
+DB_HOST = "34.64.187.52"  # Cloud SQL 공개 IP 주소
+DB_PORT = "5432"
+DB_NAME = "gdgoc-project" # 실제로 접속할 DB 이름
+
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
+
 engine = create_engine(
-     settings.DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, pool_pre_ping=True
 )
 
 # 세션 생성기

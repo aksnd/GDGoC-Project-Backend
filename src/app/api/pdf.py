@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from ..db.database import get_db
-from ..services.pdf import create_pdf_project, get_pdf_data
-from ..crud.crud_pdf_file import get_all_pdf_files
+from ..services.pdf import create_pdf_project, get_pdf_data_by_id
+from ..crud.crud_pdf_file import get_pdf_files_by_user
 from ..schemas.pdf import PdfFileResponse 
 from typing import List
 
@@ -32,15 +32,19 @@ async def upload_pdf_info(
     
     return pdf_response
 
-@router.get("/all_info", response_model=List[PdfFileResponse])
-def load_all_pdf_info(db:Session = Depends(get_db)):
+@router.get("/my_pdfs", response_model=List[PdfFileResponse])
+def load_user_pdf_info(
+    user_id: str, 
+    db: Session = Depends(get_db)
+):
     """
-    [API Layer] DB에 등록된 모든 PDF의 메타데이터 목록을 조회합니다
+    [API Layer] 요청된 user_id에 해당하는 모든 PDF 메타데이터 목록을 조회합니다.
     """
     
-    all_pdfs_db_instances = get_all_pdf_files(db)
+    # 특정 사용자 PDF 조회 CRUD 함수 호출
+    user_pdfs_db_instances = get_pdf_files_by_user(db, user_id=user_id)
     
-    return all_pdfs_db_instances
+    return user_pdfs_db_instances
 
 # 예시: GET /pdfs/{public_id} - 프로젝트 로드
 @router.get("/{public_id}")
@@ -48,7 +52,7 @@ def load_pdf_by_id(public_id: str, db: Session = Depends(get_db)):
     """
     [API Layer] 특정 public_id로 PDF를 로드합니다.
     """
-    pdf_response = get_pdf_data(db, public_id)
+    pdf_response = get_pdf_data_by_id(db, public_id)
     
     return FileResponse(
         path = pdf_response.file_path,

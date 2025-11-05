@@ -12,6 +12,4 @@ ENVIRONMENT="development"
 HOST="0.0.0.0"
 PORT=8002
 
-DATABASE_URL="sqlite:///./src/app/db/gdgoc_project.db"
-
 SECRET_KEY="SOME_VERY_LONG_AND_RANDOM_SECRET" # 아직 추가 안함

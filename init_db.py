@@ -12,7 +12,7 @@ import src.app.models
 
 def initialize_database():
     """
-    Base에 정의된 모든 모델을 기반으로 SQLite DB에 테이블을 생성합니다.
+    Base에 정의된 모든 모델을 기반으로 DB에 테이블을 생성합니다.
     (테이블이 이미 존재하면 건너뜁니다.)
     """
     print("--- 🔨 DB 스키마 초기화를 시작합니다. ---")
