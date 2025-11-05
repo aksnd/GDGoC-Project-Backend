@@ -19,15 +19,10 @@ def create_user(db: Session, user_id: str, password: str):
     
     return db_user
 
-# 2. 사용자 비밀번호 조회 (비밀번호 검증용)
-def get_user_password(db: Session, user_id: str):
+def get_user(db: Session, user_id: str):
     """
-    주어진 user_id의 비밀번호를 조회합니다.
+    해당 ID를 가진 user가 있는지 확인하여 해당 User 모델 객체를 반환합니다.
+    없으면 None을 반환합니다.
     """
-    # 특정 user_id를 가진 User 객체를 필터링하여 조회
-    user = db.query(User).filter(User.user_id == user_id).first()
-    
-    # 사용자가 존재하면 password 컬럼 값 반환, 없으면 None 반환
-    if user:
-        return user.password
-    return None
+    # 📌 User 모델에서 user_id가 일치하는 첫 번째 레코드를 조회
+    return db.query(User).filter(User.user_id == user_id).first()

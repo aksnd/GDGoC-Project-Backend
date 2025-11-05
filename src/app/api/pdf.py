@@ -18,8 +18,9 @@ router = APIRouter(
 # 예시: POST /pdfs/upload - PDF 메타데이터 등록
 @router.post("/upload", response_model=PdfFileResponse, status_code=status.HTTP_201_CREATED)
 async def upload_pdf_info(
+    user_id: str,
     pdf_file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     [API Layer] PDF 파일의 메타데이터를 등록하고 public_id를 반환합니다. 
@@ -28,7 +29,7 @@ async def upload_pdf_info(
     if pdf_file.content_type != 'application/pdf':
         raise HTTPException(status_code=400, detail="Invalid file type. Only PDF is allowed.")
     
-    pdf_response = await create_pdf_project(db, pdf_file)
+    pdf_response = await create_pdf_project(db, pdf_file, user_id)
     
     return pdf_response
 
