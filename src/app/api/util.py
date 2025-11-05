@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from sqlalchemy import inspect
 from ..db.database import get_db, Base
 from ..core.config import settings
@@ -27,19 +28,26 @@ def get_config():
 @router.get("/db-test")
 def check_db_connection(db: Session = Depends(get_db)):
     """
-    [API Layer] PostgreSQL DB의 연결 상태를 확인하고 정보를 반환합니다.
+    [API Layer] PostgreSQL DB에 성공적으로 접속되었는지 확인합니다.
     """
+    try:
+        # 📌 SELECT 1 쿼리 실행
+        # DB 연결이 성공하고 쿼리 실행 권한이 있다면, 이 명령은 성공적으로 완료됩니다.
+        db.execute(text("SELECT 1"))
+        
+        return {
+            "status": "Success",
+            "message": "PostgreSQL connection is active and ready.",
+            "db_type": "PostgreSQL"
+        }
     
-    # 📌 PostgreSQL 버전 조회 쿼리로 변경
-    result = db.execute("SELECT version()").fetchone()
-    postgres_version_info = result[0]
-    
-    # 버전 정보는 전체 문자열이므로, 필요한 경우 슬라이싱하여 사용합니다.
-    
-    return {
-        "db_version_info": postgres_version_info,
-        "db_type": "PostgreSQL"
-    }
+    except Exception as e:
+        # 쿼리 실행 중 오류가 발생하면 (주로 연결 문제) 실패 반환
+        return {
+            "status": "Failure",
+            "message": f"PostgreSQL connection failed: {e}",
+            "db_type": "PostgreSQL"
+        }
 
 @router.get("/db-tables")
 def get_actual_db_tables(db: Session = Depends(get_db)):
