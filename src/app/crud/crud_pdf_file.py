@@ -31,7 +31,12 @@ def get_pdf_file_by_id(db: Session, pdf_id: int) -> Optional[PdfFile]:
     return db.query(PdfFile).filter(PdfFile.id == pdf_id).first()
 
 # READ (전체 조회)
-def get_all_pdf_files(db: Session) -> List[PdfFile]:
-    """모든 PdfFile 객체를 조회합니다."""
-    
-    return db.query(PdfFile).all()
+def get_pdf_files_by_user(db: Session, user_id: str) -> List[PdfFile]:
+    """
+    주어진 user_id에 해당하는 모든 PdfFile 객체를 조회합니다.
+    """
+    return (
+        db.query(PdfFile)
+        .filter(PdfFile.user_id == user_id)
+        .all()
+    )

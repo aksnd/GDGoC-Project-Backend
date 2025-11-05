@@ -27,17 +27,19 @@ def get_config():
 @router.get("/db-test")
 def check_db_connection(db: Session = Depends(get_db)):
     """
-    SQLite DB 파일의 연결 상태를 확인하고 정보를 반환합니다.
+    [API Layer] PostgreSQL DB의 연결 상태를 확인하고 정보를 반환합니다.
     """
     
-    result = db.execute("SELECT sqlite_version()").fetchone()
-    sqlite_version = result[0]
+    # 📌 PostgreSQL 버전 조회 쿼리로 변경
+    result = db.execute("SELECT version()").fetchone()
+    postgres_version_info = result[0]
+    
+    # 버전 정보는 전체 문자열이므로, 필요한 경우 슬라이싱하여 사용합니다.
     
     return {
-        "database_url": settings.DATABASE_URL,
-        "sqlite_version": sqlite_version,
+        "db_version_info": postgres_version_info,
+        "db_type": "PostgreSQL"
     }
-    
 
 @router.get("/db-tables")
 def get_actual_db_tables(db: Session = Depends(get_db)):

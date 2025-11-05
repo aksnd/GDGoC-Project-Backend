@@ -12,10 +12,9 @@ from ..models.pdf_file import PdfFile
 PDF_STORAGE_DIR = Path("files") / "pdfs"
 # ------------------------------
 
-async def _save_file_to_storage(pdf_file: UploadFile, public_id: str) -> Tuple[str, int]:
+async def _save_file_to_storage(pdf_file: UploadFile, public_id: str) -> str:
     """
-    [가정] PDF 파일을 GCS에 저장하고, 저장된 경로와 페이지 수를 반환합니다.
-    (실제로는 GCP SDK를 사용해야 합니다.)
+    PDF 파일을 GCS에 저장하고, 저장된 경로를 반환합니다.
     """
     # 1. 파일 저장 경로 및 이름 생성
     file_extension = Path(pdf_file.filename).suffix.lower()
@@ -50,7 +49,8 @@ async def _save_file_to_storage(pdf_file: UploadFile, public_id: str) -> Tuple[s
 
 async def create_pdf_project(
     db: Session, 
-    pdf_file: UploadFile
+    pdf_file: UploadFile,
+    user_id: str,
 ) -> PdfFileResponse:
     """
     [Service Layer]
@@ -69,6 +69,8 @@ async def create_pdf_project(
     db_data = PdfContentCreateDB(
         filename= pdf_file.filename,
         file_path= final_file_path,
+        profile_image_path= None, # 추후에 pdf 첫 페이지 가져와서 저장하고 넣는 로직 추가 필요
+        user_id = user_id,
         public_id =public_id,
     )
 
@@ -76,14 +78,13 @@ async def create_pdf_project(
     db_pdf_instance: PdfFile = crud_pdf_file.create_pdf_file(db, pdf_file_data=db_data)
     
     # 5. 응답 모델로 변환하여 반환
-    # db_pdf_instance에는 DB 저장 후 자동 생성된 public_id와 id가 포함되어 있습니다.
     return PdfFileResponse.model_validate(db_pdf_instance)
 
 # ------------------------------------------------------------------
 # 3. 추가 서비스 함수: 특정 프로젝트 정보 로드
 # ------------------------------------------------------------------
 
-def get_pdf_data(db: Session, public_id: str) -> PdfFile:
+def get_pdf_data_by_id(db: Session, public_id: str) -> PdfFile:
     """
     [Service Layer] public_id를 사용하여 DB에서 프로젝트 메타데이터를 조회합니다.
     (나중에 Chat History와 Archiving Content 로직이 여기에 추가됩니다.)
