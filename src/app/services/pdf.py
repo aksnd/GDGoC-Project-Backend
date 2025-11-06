@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import UploadFile, HTTPException, status
 import uuid
+import io
 from pathlib import Path 
 from typing import Tuple
 import fitz  # PyMuPDF
@@ -19,7 +20,7 @@ PROFILE_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
 
 # ------------------------------
 
-def save_first_page_as_image(pdf_path: str, output_image_path: str, resolution: int = 200) -> bool:
+def save_first_page_as_image(pdf_path: str, output_image_path: str, target_width: int = 350, target_height: int = 350, target_kb: int = 75) -> bool:
     """
     PDF 파일의 첫 번째 페이지를 이미지로 저장합니다.
 
@@ -33,16 +34,36 @@ def save_first_page_as_image(pdf_path: str, output_image_path: str, resolution: 
     try:
         # PDF 문서 열기
         doc = fitz.open(pdf_path)
-        
+
         # 첫 번째 페이지 가져오기 (인덱스는 0부터 시작)
         page = doc[0]
-        
+
+        # Calculate the required resolution
+        zoom_x = target_width / page.rect.width
+        zoom_y = target_height / page.rect.height
+        zoom = min(zoom_x, zoom_y)
+        mat = fitz.Matrix(zoom, zoom)
+
         # 페이지를 Pixmap으로 렌더링
-        pix = page.get_pixmap(matrix=fitz.Matrix(resolution/72, resolution/72))
-        
-        # Pixmap을 이미지 파일로 저장
-        pix.save(output_image_path)
+        pix = page.get_pixmap(matrix=mat)
+
+        img_data = pix.tobytes("png")
+        img_io = io.BytesIO(img_data)
+
+        # Check file size and adjust quality if needed
+        while len(img_io.getvalue()) > target_kb * 1024 and zoom > 0.1:
+            zoom *= 0.9
+            mat = fitz.Matrix(zoom, zoom)
+            pix = page.get_pixmap(matrix=mat)
+            img_data = pix.tobytes("png")
+            img_io = io.BytesIO(img_data)
+
+        # Save the image to the output path
+        with open(output_image_path, "wb") as f:
+            f.write(img_io.getvalue())
+
         doc.close()
+
         return True
     except Exception as e:
         print(f"Error saving first page of PDF as image from '{pdf_path}' to '{output_image_path}': {e}")
@@ -109,7 +130,7 @@ async def create_pdf_project(
         image_filename = f"{public_id}_thumbnail.png"
         image_path_on_disk = PROFILE_IMAGE_DIR / image_filename
 
-        # PDF 첫 페이지를 이미지로 저장
+        # PDF 첫 페이지를 이미지로 저장 (크기, 용량 제한)
         if save_first_page_as_image(str(final_file_path), str(image_path_on_disk)):
             profile_image_path = str(image_path_on_disk)
         else:
