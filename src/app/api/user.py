@@ -18,7 +18,7 @@ def register_user(
     """새로운 사용자를 생성합니다."""
     
     # 1. 사용자 ID 중복 확인
-    db_user = get_user(db, user_id, password)
+    db_user = get_user(db, user_id)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
