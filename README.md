@@ -4,6 +4,7 @@
 
 uv run uvicorn src.app.main:app --reload --host 0.0.0.0 --port 8002
 
+edit something
 
 # env 파일 예시
 
