@@ -25,3 +25,7 @@ def get_chat_history_by_pdf_id(db: Session, pdf_id: int) -> List[ChatHistory]:
     """특정 PDF 파일 ID에 해당하는 모든 채팅 기록을 시간 순서로 조회합니다."""
     
     return db.query(ChatHistory).filter(ChatHistory.pdf_id == pdf_id).order_by(ChatHistory.timestamp).all()
+
+def get_chat_history_by_id(db: Session, id: int) -> Optional[ChatHistory]:
+    """특정 id에 해당하는 chat을 로드합니다"""
+    return db.query(ChatHistory).filter(ChatHistory.id == id).first()
