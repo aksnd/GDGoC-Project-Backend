@@ -8,7 +8,7 @@ from ..services.pdf import create_pdf_project, get_pdf_data_by_id
 from ..crud.crud_pdf_file import get_pdf_files_by_user
 from ..schemas.pdf import PdfFileResponse 
 from typing import List
-
+import os
 
 router = APIRouter(
     prefix="/pdfs",
@@ -60,4 +60,20 @@ def load_pdf_by_id(public_id: str, db: Session = Depends(get_db)):
         media_type="application/pdf",
         filename=pdf_response.filename,
     )
+
+@router.get("/profile/{public_id}")
+def load_pdf_profile_image_by_id(public_id: str, db: Session =Depends(get_db)):
+    """
+    [API Layer] 특정 public_id로 해당 PDF의 profile_image를 로드합니다.
+    """
+    
+    pdf_response = get_pdf_data_by_id(db, public_id)
+    file_root, _ = os.path.splitext(pdf_response.filename)
+    
+    return FileResponse(
+        path = pdf_response.profile_image_path,
+        media_type= "image/png",
+        filename =f"{file_root}_profile_image.png",
+    )
+    
     

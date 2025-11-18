@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 from ..db.database import get_db
 from ..crud import crud_chat_history, crud_pdf_file
 from ..schemas.chat_history import ChatHistoryCreateDB
+from ..services.pdf import get_pdf_data_by_id
+from fastapi.responses import FileResponse
 
 # 💡 TODO: schemas, services 모듈은 추후 완성됩니다.
 
@@ -127,3 +129,35 @@ async def process_chat_query(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Gemini API 처리 중 오류가 발생했습니다: {str(e)}"
         )
+
+# GET /chat/history/{public_id} - 해당 PDF 질의 기록 전체 불러오기
+@router.get("/history/{public_id}")
+def load_history_by_id(public_id: str, db: Session = Depends(get_db)):
+    """
+    [API Layer] 특정 public_id로 해당 PDF의 chat history들을 로드합니다.
+    """
+    pdf_id = crud_pdf_file.get_pdf_file_by_public_id(db, public_id).id
+    print(pdf_id)
+    chat_histories = crud_chat_history.get_chat_history_by_pdf_id(db, pdf_id)
+    
+    return chat_histories
+
+# GET /chat/image/{chat_history_id} - 해당 PDF의 특정 질의 기록의 이미지 불러오기
+@router.get("/image/{chat_history_id}")
+def load_image_by_chat_history_id(chat_history_id, db:Session = Depends(get_db)):
+    """
+        chat_history_id로 해당 chat으로 넣은 사진을 로드합니다.
+    """
+    chat_response = crud_chat_history.get_chat_history_by_id(db, chat_history_id)
+    
+    return FileResponse(
+        path = chat_response.image_path,
+        media_type= "image/png",
+        filename =f"{chat_history_id}_image.png",
+    )
+    
+    
+    
+    
+    
+    
