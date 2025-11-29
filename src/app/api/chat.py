@@ -11,6 +11,7 @@ from ..crud import crud_chat_history, crud_pdf_file
 from ..schemas.chat_history import ChatHistoryCreateDB
 from ..services.pdf import get_pdf_data_by_id
 from fastapi.responses import FileResponse
+from typing import Optional
 
 # 💡 TODO: schemas, services 모듈은 추후 완성됩니다.
 
@@ -39,7 +40,7 @@ router = APIRouter(
 # 예시: POST /chat/query - Gemini 질의 및 기록 저장
 @router.post("/query")
 async def process_chat_query(
-    image_file: UploadFile = File(..., description="드래그한 이미지 파일"),
+    image_file: Optional[UploadFile] = File(None, description="드래그한 이미지 파일"),
     public_id: str = Form(..., description= "pdf의 공개 id"),
     page_number: int = Form(..., description= "질문이 발생한 PDF 페이지 번호"),
     question_query: str = Form(..., description= "질문 query"),
@@ -54,6 +55,57 @@ async def process_chat_query(
             detail="Gemini API가 설정되지 않았습니다. 서버 로그에서 GEMINI_API_KEY를 확인하세요."
         )
     
+    if image_file is None:
+        try:
+            full_prompt = f"""
+            이미지 없이 사용자의 질문입니다:
+            "{question_query}"
+            query를 기반으로 답변해주세요.
+            """
+            
+            response = await model.generate_content_async(
+                contents=[full_prompt]
+            )
+            pdf_file_db = crud_pdf_file.get_pdf_file_by_public_id(db, public_id=public_id)
+            if not pdf_file_db:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 public_id를 가진 PDF를 찾을 수 없습니다.")
+            
+            answer = response.text
+            
+            chat_history_to_db = ChatHistoryCreateDB(
+                pdf_id=pdf_file_db.id,
+                page_number=page_number,
+                question_query=question_query,
+                response_query=answer,
+            )
+            
+            crud_chat_history.create_chat_entry(db=db, chat_history_data=chat_history_to_db)
+
+            return {
+                "answer": answer,
+                "context": {
+                    "public_id": public_id,
+                    "page_number": page_number,
+                    "question": question_query
+                }
+            }
+        
+        except genai_types.generation_types.StopCandidateException as e:
+            # Gemini API의 안전 설정 (Safety Settings) 등에 의해 차단된 경우
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Gemini API가 안전상의 이유로 요청을 차단했습니다: {e}"
+            )
+    
+        except Exception as e:
+            # 기타 예외 처리 (API 키 인증 실패, 네트워크 오류 등)
+            print(f"Gemini API 처리 중 오류 발생: {e}") # 서버 로그에 상세 오류 출력
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Gemini API 처리 중 오류가 발생했습니다: {str(e)}"
+            )
+        
+
     if not image_file.content_type or not image_file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
